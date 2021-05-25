@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
@@ -9,12 +9,12 @@ import {
   makeStyles,
   MuiThemeProvider,
 } from "@material-ui/core/styles";
-
+import MoreVertIcon from "@material-ui/icons/MoreVert";
 import SearchIcon from "@material-ui/icons/Search";
 import PublicIcon from "@material-ui/icons/Public";
 import HomeIcon from "@material-ui/icons/Home";
 import AccountBoxIcon from "@material-ui/icons/AccountBox";
-import { IconButton, Link } from "@material-ui/core";
+import { IconButton, Menu, MenuItem } from "@material-ui/core";
 import { Link as RouterLink } from "react-router-dom";
 import { Link as MaterialLink } from "@material-ui/core";
 const useStyles = makeStyles((theme) => ({
@@ -57,15 +57,17 @@ const useStyles = makeStyles((theme) => ({
   navIconButtons: {
     display: "flex",
     flexDirection: "row",
-    "&>a": {
-      height: theme.height,
-      marginLeft: "10px",
-      "&>span>svg": {
-        color: "white",
-        height: "40px",
-        width: "40px",
-      },
-    },
+  },
+
+  navIconButton: {
+    height: theme.height,
+    marginLeft: "10px",
+  },
+
+  navIcon: {
+    color: "white",
+    height: "40px",
+    width: "40px",
   },
 }));
 
@@ -74,9 +76,17 @@ const theme = createMuiTheme({
 });
 
 function NavbarElements() {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const open = Boolean(anchorEl);
   const classes = useStyles();
   return (
-    <AppBar position="static">
+    <AppBar position="sticky">
       <Toolbar className={classes.toolbarRoot}>
         <Typography variant="h4" noWrap={false}>
           <MaterialLink
@@ -103,15 +113,65 @@ function NavbarElements() {
         </div>
 
         <div className={classes.navIconButtons}>
-          <IconButton component={RouterLink} to="/public">
-            <PublicIcon />
+          <IconButton
+            className={classes.navIconButton}
+            component={RouterLink}
+            to="/public"
+          >
+            <PublicIcon className={classes.navIcon} />
           </IconButton>
-          <IconButton component={RouterLink} to="/">
-            <HomeIcon />
+          <IconButton
+            className={classes.navIconButton}
+            component={RouterLink}
+            to="/"
+          >
+            <HomeIcon className={classes.navIcon} />
           </IconButton>
-          <IconButton component={RouterLink} to="/profile">
-            <AccountBoxIcon />
+          <IconButton
+            className={classes.navIconButton}
+            component={RouterLink}
+            to="/profile"
+          >
+            <AccountBoxIcon className={classes.navIcon} />
           </IconButton>
+          <IconButton
+            aria-controls="three-dots-menu"
+            className={classes.navIconButton}
+            onClick={handleClick}
+          >
+            <MoreVertIcon className={classes.navIcon} />
+          </IconButton>
+
+          <Menu
+            disableScrollLock={true}
+            id="three-dots-menu"
+            keepMounted
+            anchorEl={anchorEl}
+            open={open}
+            onClick={handleClose}
+            onClose={handleClose}
+            getContentAnchorEl={null}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "center",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "center",
+            }}
+          >
+            <MenuItem>Settings</MenuItem>
+            <MenuItem>
+              <MaterialLink
+                color="inherit"
+                underline="none"
+                component={RouterLink}
+                to="/signIn"
+              >
+                Log out
+              </MaterialLink>
+            </MenuItem>
+          </Menu>
         </div>
       </Toolbar>
     </AppBar>

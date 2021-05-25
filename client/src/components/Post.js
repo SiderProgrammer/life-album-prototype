@@ -9,7 +9,6 @@ import {
 } from "@material-ui/core";
 import ThumbUpAltIcon from "@material-ui/icons/ThumbUpAlt";
 import ChatBubbleIcon from "@material-ui/icons/ChatBubble";
-import React from "react";
 
 const SAMPLE_IMG_URL =
   "https://miro.medium.com/max/1838/1*MI686k5sDQrISBM6L8pf5A.jpeg";
@@ -20,10 +19,10 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
   },
   media: {
-    paddingTop: "110%",
+    paddingTop: "100%",
   },
   description: {
-    background: "antiquewhite;",
+    background: "antiquewhite",
   },
   interaction: {
     display: "flex",

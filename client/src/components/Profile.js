@@ -3,25 +3,52 @@ import {
   CardMedia,
   Card,
   Grid,
-  ImageList,
   makeStyles,
   Typography,
-  GridListTile,
-  GridList,
   CardHeader,
+  Button,
+  List,
 } from "@material-ui/core";
-import React from "react";
+import DateFnsUtils from "@date-io/date-fns";
+
+import {
+  KeyboardDatePicker,
+  MuiPickersUtilsProvider,
+} from "@material-ui/pickers";
+
+import { useState } from "react";
 const SAMPLE_IMG_URL =
   "https://miro.medium.com/max/1838/1*MI686k5sDQrISBM6L8pf5A.jpeg";
 
-const useStyles = makeStyles({
-  profile: {
-    marginLeft: "50%",
-    display: "inline-block",
-    transform: "translateX(-50%)",
+const useStyles = makeStyles((theme) => ({
+  wrapper: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+  },
+
+  headerRoot: {
+    justifyContent: "center",
+    gap: "30px",
+    [theme.breakpoints.down(600)]: {
+      flexDirection: "column",
+    },
+  },
+  followButton: {
+    [theme.breakpoints.down(600)]: {
+      order: "2",
+    },
   },
   stats: {
-    display: "inline-block",
+    [theme.breakpoints.down(600)]: {
+      order: "3",
+    },
+  },
+  profile: {
+    [theme.breakpoints.down(600)]: {
+      order: "1",
+    },
   },
   avatarRoot: {
     marginLeft: "auto",
@@ -29,114 +56,114 @@ const useStyles = makeStyles({
   },
   album: {},
   day: {
-    padding: "100%",
+    aspectRatio: "1",
   },
-});
+  tile: {
+    maxWidth: "400px",
+    margin: "auto",
+  },
+  dayTitle: {
+    textAlign: "center",
+  },
+  post: {
+    transition: "0.3s cubic-bezier(.47,1.64,.41,.8)",
+    "&:hover": {
+      transform: "scale(1.02)",
+      cursor: "pointer",
+    },
+  },
+}));
+function getPostDate(i) {
+  var today = new Date(new Date() - 1000 * 60 * 60 * 24 * (i - 1));
+  var dd = String(today.getDate()).padStart(2, "0");
+  var mm = String(today.getMonth() + 1).padStart(2, "0");
+  var yyyy = today.getFullYear();
+
+  return dd + "/" + mm + "/" + yyyy;
+}
+function AlbumPosts({ classes }) {
+  const posts = [];
+
+  for (let i = 9; i > 0; --i) {
+    posts.push(
+      <Grid className={classes.post} key={i} item xs={4}>
+        <div className={classes.tile}>
+          <Card>
+            <CardHeader
+              title={"Day " + i}
+              subheader={getPostDate(i)}
+              className={classes.dayTitle}
+            />
+
+            <CardMedia image={SAMPLE_IMG_URL} className={classes.day} />
+          </Card>
+        </div>
+      </Grid>
+    );
+  }
+
+  return posts;
+}
 
 function Profile() {
   const classes = useStyles();
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+  };
   return (
-    <>
-      <div>
-        <div className={classes.profile}>
-          <Avatar
-            classes={{
-              root: classes.avatarRoot,
-            }}
+    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+      <div className={classes.wrapper}>
+        <Grid className={classes.headerRoot} container alignItems="center">
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.followButton}
           >
-            XYZ
-          </Avatar>
-          <Typography>Nickname</Typography>
-        </div>
+            Follow
+          </Button>
 
-        <div className={classes.stats}>
-          <Typography>rank 1</Typography>
-          <Typography>days 53</Typography>
-          <Typography>days in a row 22</Typography>
-          <Typography>favorites 277</Typography>
-        </div>
+          <div className={classes.profile}>
+            <div>
+              <Avatar
+                classes={{
+                  root: classes.avatarRoot,
+                }}
+              >
+                XYZ
+              </Avatar>
+              <Typography>Nickname</Typography>
+            </div>
+          </div>
+
+          <List className={classes.stats}>
+            <Typography>Total days in album 53</Typography>
+            <Typography>Published days 35</Typography>
+            <Typography>Max published days in a row 22</Typography>
+            <Typography>Followers 277</Typography>
+          </List>
+        </Grid>
+        <KeyboardDatePicker
+          disableToolbar
+          variant="inline"
+          format="dd/MM/yyyy"
+          minDate="05.10.2021"
+          maxDate={new Date()}
+          margin="normal"
+          autoOk={true}
+          id="date-picker-inline"
+          label="Date picker inline"
+          value={selectedDate}
+          onChange={handleDateChange}
+        />
       </div>
-
-      <GridList cols={3} spacing={1}>
-        <GridListTile>
-          <CardHeader title="Day 1" />
-          <Card>
-            <CardMedia image={SAMPLE_IMG_URL} className={classes.day} />
-          </Card>
-        </GridListTile>
-        <GridListTile>
-          <Card>
-            <CardHeader title="Day 1" />
-            <CardMedia image={SAMPLE_IMG_URL} className={classes.day} />
-          </Card>
-        </GridListTile>
-        <GridListTile>
-          <Card>
-            <CardHeader title="Day 1" />
-            <CardMedia
-              image={SAMPLE_IMG_URL}
-              className={classes.day}
-              cols={1}
-            />
-          </Card>
-        </GridListTile>
-        <GridListTile>
-          <Card>
-            <CardHeader title="Day 1" />
-            <CardMedia
-              image={SAMPLE_IMG_URL}
-              className={classes.day}
-              cols={1}
-            />
-          </Card>
-        </GridListTile>
-        <GridListTile>
-          <Card>
-            <CardMedia
-              image={SAMPLE_IMG_URL}
-              className={classes.day}
-              cols={1}
-            />
-          </Card>
-        </GridListTile>
-        <GridListTile>
-          <Card>
-            <CardMedia
-              image={SAMPLE_IMG_URL}
-              className={classes.day}
-              cols={1}
-            />
-          </Card>
-        </GridListTile>
-        <GridListTile>
-          <Card>
-            <CardMedia
-              image={SAMPLE_IMG_URL}
-              className={classes.day}
-              cols={1}
-            />
-          </Card>
-        </GridListTile>
-        <GridListTile>
-          <Card>
-            <CardMedia
-              image={SAMPLE_IMG_URL}
-              className={classes.day}
-              cols={1}
-            />
-          </Card>
-        </GridListTile>
-        <GridListTile>
-          <Card>
-            <CardMedia
-              image={SAMPLE_IMG_URL}
-              className={classes.day}
-              cols={1}
-            />
-          </Card>
-        </GridListTile>
-      </GridList>
-    </>
+      <div>
+        <Grid container spacing={1}>
+          <AlbumPosts classes={classes} />
+        </Grid>
+      </div>
+    </MuiPickersUtilsProvider>
   );
 }
 
