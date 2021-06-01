@@ -8,6 +8,7 @@ const sequelize = new Sequelize(
   dbConfig.PASSWORD,
 
   {
+    logging: false,
     dialect: "mysql",
     host: dbConfig.HOST,
   }
@@ -20,7 +21,7 @@ const db = {
   postModel: postModel(sequelize, Sequelize),
 };
 
-db.userModel.hasMany(db.postModel);
-db.postModel.belongsTo(db.userModel);
+db.userModel.hasMany(db.postModel, { as: "posts", foreignKey: "id" });
+db.postModel.belongsTo(db.userModel, { as: "owner", foreignKey: "user_id" });
 
 export default db;

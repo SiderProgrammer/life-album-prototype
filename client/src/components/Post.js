@@ -36,18 +36,24 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-function Post() {
+function Post(props) {
   const classes = useStyles();
+
+  const { description, image_path, createdAt } = props.data;
+  const onwerNickname = props.data.owner.nickname;
   return (
     <Card className={classes.root}>
-      <CardHeader avatar={<Avatar>XYZ</Avatar>} subheader="Nickname">
+      <CardHeader avatar={<Avatar>XYZ</Avatar>} subheader={onwerNickname}>
         <Typography>Day 37</Typography>
       </CardHeader>
       <div className={classes.description}>
-        <Typography>Description ...</Typography>
+        <Typography>{description}</Typography>
       </div>
 
-      <CardMedia className={classes.media} image={SAMPLE_IMG_URL} />
+      <CardMedia
+        className={classes.media}
+        image={image_path || SAMPLE_IMG_URL}
+      />
 
       <div className={classes.interaction}>
         <div>

@@ -1,14 +1,23 @@
 import express from "express";
-
+import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import cors from "cors";
 import db from "./src/models/index.js";
+import jwt from "jsonwebtoken";
+import config from "./src/auth.config.js";
+import authMiddleware from "./src/auth.js";
+import session from "cookie-session";
+import helmet from "helmet";
+import hpp from "hpp";
+import csurf from "csurf";
 
 const app = express();
-app.use(cors({ origin: "http://localhost:3000" }));
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(helmet());
+app.use(cookieParser());
+//app.use(hpp());
 db.sequelize.sync();
 
 const { userModel, postModel } = db;
@@ -45,15 +54,26 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
-  userModel.findOne({ where: { email, password } }).then((c) => {
-    res.json(c);
+  userModel.findOne({ where: { email, password } }).then((user) => {
+    const token = jwt.sign({ id: user.id }, config.secret, {
+      expiresIn: config.expireTime, // 24 hours
+    });
+
+    res.cookie("session_id", token, {
+      httpOnly: true,
+      secure: true /*,sameSite:true*/,
+    });
+    res.status(200).json("cookie");
   });
 });
 
+//app.use(authMiddleware);
+//app.use(csurf)
+app.get("check-token", (req, res) => res.json({ ok: true }));
+
 app.get("/posts", (req, res) => {
-  postModel
-    .findAll({ include: [{ model: userModel, as: userModel.tableName }] })
-    .then((data) => res.send(data));
+  console.log(req.headers);
+  postModel.findAll({ include: ["owner"] }).then((data) => res.send(data));
 });
 
 app.listen(3001, () => console.log("server is running!"));

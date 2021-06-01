@@ -12,7 +12,10 @@ import Container from "@material-ui/core/Container";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import { Link as MaterialLink } from "@material-ui/core";
 import { useFormik } from "formik";
-import axios from "axios";
+
+import api from "../api/api";
+
+//import ReactSession from "react-client-session";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -44,14 +47,19 @@ export default function SignIn() {
       password: "",
     },
     onSubmit({ email, password }) {
-      axios
-        .post("http://localhost:3001/login", {
+      api
+        .post("login", {
           email,
           password,
         })
         .then((res) => {
+          console.log("post login", res);
           if (res.status === 200) {
-            // console.log(res);
+            console.log("post login", res);
+            // ReactSession.setStoreType("localStorage");
+
+            // ReactSession.set("token", res.data.token);
+            //  localStorage.setItem("token", res.data.token);
             history.push("/");
           }
         });
