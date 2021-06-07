@@ -1,7 +1,8 @@
 import { makeStyles } from "@material-ui/core";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Post from "./Post";
-import axios from "axios";
+
+import api from "../api/api";
 
 const useStyles = makeStyles({
   root: {
@@ -12,19 +13,23 @@ const useStyles = makeStyles({
     gap: "70px",
   },
 });
+
 function Home() {
   const classes = useStyles();
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/posts")
-      .then((respone) => console.log(respone));
+    api.get("posts").then((response) => {
+      console.log("get posts ", response);
+      setPosts(response.data);
+    });
   }, []);
 
   return (
     <section className={classes.root}>
-      <Post />
-      <Post />
+      {posts.map((post) => (
+        <Post key={post.id} data={post} />
+      ))}
     </section>
   );
 }

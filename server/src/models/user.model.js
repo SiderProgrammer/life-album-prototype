@@ -9,5 +9,10 @@ export default (sequelize, Sequelize) => {
     password: {
       type: Sequelize.STRING,
     },
+    followers_count: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0,
+      allowNull: false,
+    },
   });
 };

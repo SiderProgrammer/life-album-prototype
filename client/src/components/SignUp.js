@@ -11,7 +11,8 @@ import Container from "@material-ui/core/Container";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import { Link as MaterialLink } from "@material-ui/core";
 import { useFormik } from "formik";
-import axios from "axios";
+
+import api from "../api/api";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -45,8 +46,8 @@ export default function SignUp() {
       repeatPassword: "",
     },
     onSubmit({ nickname, email, password }) {
-      axios
-        .post("http://localhost:3001/register", {
+      api
+        .post("register", {
           nickname,
           email,
           password,

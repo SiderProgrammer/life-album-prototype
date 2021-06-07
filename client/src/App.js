@@ -6,21 +6,24 @@ import { BrowserRouter, Route, Switch } from "react-router-dom";
 import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
 import Home from "./components/Home";
+import AppProvider from "./auth";
 function App() {
   return (
     <>
       <CssBaseline />
 
       <BrowserRouter>
-        <Switch>
-          <Route exact path="/signIn" component={SignIn} />
-          <Route exact path="/signUp" component={SignUp} />
-          <NavBar />
-        </Switch>
+        <AppProvider>
+          <Switch>
+            <Route exact path="/signIn" component={SignIn} />
+            <Route exact path="/signUp" component={SignUp} />
+            <NavBar />
+          </Switch>
 
-        <Route exact path="/" component={Home} />
+          <Route exact path="/" component={Home} />
 
-        <Route path="/profile" exact component={Profile} />
+          <Route path="/profile" exact component={Profile} />
+        </AppProvider>
       </BrowserRouter>
     </>
   );
