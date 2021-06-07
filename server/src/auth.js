@@ -3,21 +3,17 @@ import jwt from "jsonwebtoken";
 import authConfig from "./auth.config.js";
 
 export default (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  const token = req.cookies.token || "";
 
-  if (!authHeader) {
+  if (!token) {
     return res.status(401).json({ error: "Token not provided" });
   }
 
-  const token = authHeader.split(" ")[1];
-  console.log(token);
   try {
     jwt.verify(token, authConfig.secret, (err, user) => {
-      console.log(err);
-
       if (err) return res.sendStatus(403);
-      req.user = user;
-
+      req.userId = user.id;
+      req.nickname = user.nickname;
       next();
     });
   } catch (err) {

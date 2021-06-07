@@ -18,9 +18,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(cookieParser());
 //app.use(hpp());
-db.sequelize.sync();
+const syncConfig = { force: false };
+db.sequelize.sync(syncConfig);
 
-const { userModel, postModel } = db;
+const { userModel, postModel, likesModel, commentsModel } = db;
 
 app.post("/register", (req, res) => {
   const { nickname, email, password } = req.body;
@@ -41,7 +42,18 @@ app.post("/register", (req, res) => {
           "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
       };
 
-      postModel.create(post);
+      postModel.create(post).then((data) => {
+        likesModel.create({
+          post_id: data.dataValues.id,
+          nickname: "brabra",
+        });
+
+        commentsModel.create({
+          post_id: data.dataValues.id,
+          nickname: "brabra",
+          text: "sample comment",
+        });
+      });
     })
     .catch((err) => {
       res.status(500).send({
@@ -55,25 +67,60 @@ app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
   userModel.findOne({ where: { email, password } }).then((user) => {
-    const token = jwt.sign({ id: user.id }, config.secret, {
-      expiresIn: config.expireTime, // 24 hours
-    });
+    console.log(user.nickname);
+    const token = jwt.sign(
+      { id: user.id, nickname: user.nickname },
+      config.secret,
+      {
+        expiresIn: config.expireTime, // 24 hours
+      }
+    );
 
-    res.cookie("session_id", token, {
+    res.cookie("token", token, {
       httpOnly: true,
       secure: true /*,sameSite:true*/,
+      maxAge: 60 * 60 * 24 * 1000,
     });
     res.status(200).json("cookie");
   });
 });
 
-//app.use(authMiddleware);
+app.use(authMiddleware);
 //app.use(csurf)
-app.get("check-token", (req, res) => res.json({ ok: true }));
+//app.get("/check-token", (req, res) => res.json({ ok: true }));
 
 app.get("/posts", (req, res) => {
-  console.log(req.headers);
-  postModel.findAll({ include: ["owner"] }).then((data) => res.send(data));
+  postModel
+    .findAll({ include: ["owner", "comments", "likes"] })
+    .then((data) => res.send(data));
 });
+
+app.post("/post-like", (req, res) => {
+  const nickname = req.nickname;
+  const { post_id } = req.body;
+  console.log("liking a post!");
+  likesModel.create({
+    post_id,
+    nickname,
+  });
+});
+
+app.post("/post-comment", (req, res) => {
+  const { nickname } = req;
+  const { post_id, text } = req.body;
+  console.log("commenting a post!");
+  commentsModel.create({
+    post_id,
+    nickname,
+    text,
+  });
+});
+
+app.get("/profile", (req, res) => {
+  userModel
+    .findByPk(req.userId, { include: ["posts"] })
+    .then((user) => res.send(user));
+});
+app.get("/user/:id", (req, res) => console.log(req.params.id));
 
 app.listen(3001, () => console.log("server is running!"));

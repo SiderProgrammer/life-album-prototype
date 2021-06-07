@@ -11,6 +11,8 @@ export default (sequelize, Sequelize) => {
     },
     followers_count: {
       type: Sequelize.INTEGER,
+      defaultValue: 0,
+      allowNull: false,
     },
   });
 };

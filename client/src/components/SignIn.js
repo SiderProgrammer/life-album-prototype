@@ -53,13 +53,7 @@ export default function SignIn() {
           password,
         })
         .then((res) => {
-          console.log("post login", res);
           if (res.status === 200) {
-            console.log("post login", res);
-            // ReactSession.setStoreType("localStorage");
-
-            // ReactSession.set("token", res.data.token);
-            //  localStorage.setItem("token", res.data.token);
             history.push("/");
           }
         });
