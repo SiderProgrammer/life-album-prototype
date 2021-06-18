@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-import authConfig from "./auth.config.js";
+import authConfig from "../config/auth.config.js";
 
 export default (req, res, next) => {
   const token = req.cookies.token || "";
@@ -14,6 +14,7 @@ export default (req, res, next) => {
       if (err) return res.sendStatus(403);
       req.userId = user.id;
       req.nickname = user.nickname;
+
       next();
     });
   } catch (err) {

@@ -1,4 +1,4 @@
-import dbConfig from "../db.config.js";
+import dbConfig from "../config/db.config.js";
 import Sequelize from "sequelize";
 import userModel from "./user.model.js";
 import postModel from "./posts.model.js";
@@ -17,35 +17,43 @@ const sequelize = new Sequelize(
   }
 );
 
-const db = {
+export const db = {
   Sequelize,
   sequelize,
-  userModel: userModel(sequelize, Sequelize),
-  postModel: postModel(sequelize, Sequelize),
-  commentsModel: commentsModel(sequelize, Sequelize),
-  likesModel: likesModel(sequelize, Sequelize),
 };
+export const user = userModel(sequelize, Sequelize);
+export const comment = commentsModel(sequelize, Sequelize);
+export const post = postModel(sequelize, Sequelize);
+export const like = likesModel(sequelize, Sequelize);
 
-db.userModel.hasMany(db.postModel, { as: "posts", foreignKey: "id" });
-db.postModel.belongsTo(db.userModel, { as: "owner", foreignKey: "user_id" });
+user.hasMany(post, {
+  as: "posts",
+  foreignKey: "id",
+  constraints: false,
+});
+post.belongsTo(user, {
+  as: "owner",
+  foreignKey: "user_id",
+  constraints: false,
+});
 
-db.postModel.hasMany(db.commentsModel, {
+post.hasMany(comment, {
   as: "comments",
   foreignKey: "post_id",
   constraints: false,
 });
-db.commentsModel.belongsTo(db.postModel, {
+comment.belongsTo(post, {
   as: "commentedPost",
   foreignKey: "post_id",
   constraints: false,
 });
 
-db.postModel.hasMany(db.likesModel, {
+post.hasMany(like, {
   as: "likes",
   foreignKey: "post_id",
   constraints: false,
 });
-db.likesModel.belongsTo(db.postModel, {
+like.belongsTo(post, {
   as: "likedPost",
   foreignKey: "post_id",
   constraints: false,

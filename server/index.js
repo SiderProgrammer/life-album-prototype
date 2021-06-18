@@ -4,8 +4,8 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import db from "./src/models/index.js";
 import jwt from "jsonwebtoken";
-import config from "./src/auth.config.js";
-import authMiddleware from "./src/auth.js";
+import config from "./src/config/auth.config.js";
+import authMiddleware from "./src/middlewares/auth.js";
 import session from "cookie-session";
 import helmet from "helmet";
 import hpp from "hpp";
@@ -21,53 +21,13 @@ app.use(cookieParser());
 const syncConfig = { force: false };
 db.sequelize.sync(syncConfig);
 
-const { userModel, postModel, likesModel, commentsModel } = db;
-
-app.post("/register", (req, res) => {
-  const { nickname, email, password } = req.body;
-  const user = {
-    nickname,
-    email,
-    password,
-  };
-
-  userModel
-    .create(user)
-    .then((data) => {
-      res.send(data);
-      const post = {
-        user_id: data.dataValues.id,
-        description: "Test description",
-        image_path:
-          "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
-      };
-
-      postModel.create(post).then((data) => {
-        likesModel.create({
-          post_id: data.dataValues.id,
-          nickname: "brabra",
-        });
-
-        commentsModel.create({
-          post_id: data.dataValues.id,
-          nickname: "brabra",
-          text: "sample comment",
-        });
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while creating the Tutorial.",
-      });
-    });
-});
+const { userModel, postModel, likesModel, commentsModel, followModel } = db;
+app.use(routes);
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
   userModel.findOne({ where: { email, password } }).then((user) => {
-    console.log(user.nickname);
     const token = jwt.sign(
       { id: user.id, nickname: user.nickname },
       config.secret,
@@ -99,27 +59,79 @@ app.post("/post-like", (req, res) => {
   const nickname = req.nickname;
   const { post_id } = req.body;
   console.log("liking a post!");
-  likesModel.create({
-    post_id,
-    nickname,
+  likesModel
+    .create({
+      post_id,
+      nickname,
+    })
+    .then((r) => res.send(r));
+});
+
+app.post("/delete-like", (req, res) => {
+  const nickname = req.nickname;
+  console.log(nickname);
+  const { post_id } = req.body;
+  likesModel
+    .destroy({
+      where: {
+        post_id,
+        nickname,
+      },
+    })
+    .then((r) => res.send(nickname));
+});
+
+app.post("/is-post-liked", (req, res) => {
+  const nickname = req.nickname;
+  const post_id = req.body.post_id;
+  likesModel.findOne({ where: { post_id, nickname } }).then((exists) => {
+    if (exists) {
+      res.send("liked");
+    } else {
+      res.send("notLiked");
+    }
   });
 });
 
 app.post("/post-comment", (req, res) => {
   const { nickname } = req;
   const { post_id, text } = req.body;
-  console.log("commenting a post!");
-  commentsModel.create({
-    post_id,
-    nickname,
-    text,
-  });
+  console.log("commenting a post!", nickname);
+
+  commentsModel
+    .create({
+      post_id,
+      nickname,
+      text,
+    })
+    .then((r) => res.send(r));
+});
+
+app.post("follow-user", (req, res) => {
+  // const {nickname} = req;
+  // const {user_nickname} = req.body
+  // followModel.create({
+  // })
 });
 
 app.get("/profile", (req, res) => {
-  userModel
-    .findByPk(req.userId, { include: ["posts"] })
-    .then((user) => res.send(user));
+  userModel.findByPk(req.userId).then((user) => res.send(user));
+  // .findByPk(req.userId, { include: ["posts"] })
+});
+app.post("/profile-posts", (req, res) => {
+  const offset = req.body.offset;
+
+  postModel
+    .findAll({
+      where: { user_id: req.userId },
+
+      limit: 9,
+      offset,
+      sort: [["createdAt", "ASC"]],
+    })
+    .then((data) => {
+      res.send(data);
+    });
 });
 app.get("/user/:id", (req, res) => console.log(req.params.id));
 

@@ -110,18 +110,31 @@ function Profile() {
   const classes = useStyles();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [userData, setUserData] = useState({});
+  const [postsData, setPostsData] = useState(false);
+
   useEffect(() => {
     async function getUserData() {
       const user = await api.get("profile");
-      console.log(user);
+      console.log("user data ", user);
       setUserData(user.data);
+      console.log(userData.createdAt);
+    }
+    async function getUserPostsData() {
+      const posts = await api.post("profile-posts", { offset: 0 });
+      console.log("posts data ", posts);
+
+      setPostsData(posts.data);
     }
     getUserData();
+    getUserPostsData();
   }, []);
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
+  function handlePostClick(id) {
+    console.log("get and open post with id ", id);
+  }
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <div className={classes.wrapper}>
@@ -150,7 +163,7 @@ function Profile() {
           <List className={classes.stats}>
             <Typography>Total days in album 53</Typography>
             <Typography>
-              Published days {userData.posts && userData.posts.length}
+              Published days {postsData && postsData.length}
             </Typography>
             <Typography>Max published days in a row 22</Typography>
             <Typography>Followers {userData.followers_count}</Typography>
@@ -160,7 +173,7 @@ function Profile() {
           disableToolbar
           variant="inline"
           format="dd/MM/yyyy"
-          minDate="05.10.2021"
+          minDate={userData.createdAt}
           maxDate={new Date()}
           margin="normal"
           autoOk={true}
@@ -172,13 +185,19 @@ function Profile() {
       </div>
       <div>
         <Grid container spacing={1}>
-          {userData.posts &&
-            userData.posts.map((post, i) => (
-              <Grid className={classes.post} key={i} item xs={4}>
+          {postsData &&
+            postsData.map((post, i) => (
+              <Grid
+                className={classes.post}
+                key={i}
+                item
+                xs={4}
+                onClick={() => handlePostClick(post.id)}
+              >
                 <div className={classes.tile}>
                   <Card>
                     <CardHeader
-                      title={"Day " + i}
+                      title={"Day " + Number(i + 1)}
                       subheader={getPostDate(i)}
                       className={classes.dayTitle}
                     />

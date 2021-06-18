@@ -55,7 +55,7 @@ export default function SignUp() {
         .then((res) => {
           if (res.status === 200) {
             //  localStorage.setItem("nickname", JSON.stringify(res.data.nickname));
-            history.push("/");
+            history.push("/signin");
           }
         });
     },
